@@ -15,6 +15,33 @@ const Index = () => {
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
   const { toast } = useToast();
 
+  // Load username and name from localStorage on component mount
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('json-editor-username');
+    const savedYourName = localStorage.getItem('json-editor-yourname');
+    
+    if (savedUsername) {
+      setUsername(savedUsername);
+    }
+    if (savedYourName) {
+      setYourName(savedYourName);
+    }
+  }, []);
+
+  // Save username to localStorage when it changes
+  useEffect(() => {
+    if (username) {
+      localStorage.setItem('json-editor-username', username);
+    }
+  }, [username]);
+
+  // Save yourName to localStorage when it changes
+  useEffect(() => {
+    if (yourName) {
+      localStorage.setItem('json-editor-yourname', yourName);
+    }
+  }, [yourName]);
+
   // Update JSON X when username or name changes
   useEffect(() => {
     try {
