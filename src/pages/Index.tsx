@@ -8,8 +8,8 @@ import { Copy, FileJson, Calendar, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [jsonXData, setJsonXData] = useState('{\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
-  const [jsonYData, setJsonYData] = useState('{\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
+  const [jsonXData, setJsonXData] = useState('{\n  "username": "",\n  "yourName": "",\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
+  const [jsonYData, setJsonYData] = useState('{\n  "username": "",\n  "yourName": "",\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
   const [usernameX, setUsernameX] = useState('');
   const [yourNameX, setYourNameX] = useState('');
   const [usernameY, setUsernameY] = useState('');
@@ -17,6 +17,32 @@ const Index = () => {
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
   const { toast } = useToast();
+
+  // Update JSON X when username or name changes
+  useEffect(() => {
+    try {
+      const parsedJson = JSON.parse(jsonXData);
+      parsedJson.username = usernameX;
+      parsedJson.yourName = yourNameX;
+      const updatedJson = JSON.stringify(parsedJson, null, 2);
+      setJsonXData(updatedJson);
+    } catch (error) {
+      // If JSON is invalid, don't update
+    }
+  }, [usernameX, yourNameX]);
+
+  // Update JSON Y when username or name changes
+  useEffect(() => {
+    try {
+      const parsedJson = JSON.parse(jsonYData);
+      parsedJson.username = usernameY;
+      parsedJson.yourName = yourNameY;
+      const updatedJson = JSON.stringify(parsedJson, null, 2);
+      setJsonYData(updatedJson);
+    } catch (error) {
+      // If JSON is invalid, don't update
+    }
+  }, [usernameY, yourNameY]);
 
   // Update the last updated date for JSON X
   useEffect(() => {
@@ -38,6 +64,35 @@ const Index = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
+  }, [jsonYData]);
+
+  // Parse username and name from JSON when JSON changes manually
+  useEffect(() => {
+    try {
+      const parsedJson = JSON.parse(jsonXData);
+      if (parsedJson.username !== usernameX) {
+        setUsernameX(parsedJson.username || '');
+      }
+      if (parsedJson.yourName !== yourNameX) {
+        setYourNameX(parsedJson.yourName || '');
+      }
+    } catch (error) {
+      // If JSON is invalid, don't update
+    }
+  }, [jsonXData]);
+
+  useEffect(() => {
+    try {
+      const parsedJson = JSON.parse(jsonYData);
+      if (parsedJson.username !== usernameY) {
+        setUsernameY(parsedJson.username || '');
+      }
+      if (parsedJson.yourName !== yourNameY) {
+        setYourNameY(parsedJson.yourName || '');
+      }
+    } catch (error) {
+      // If JSON is invalid, don't update
+    }
   }, [jsonYData]);
 
   const handleCopy = async (data: string, type: string) => {
@@ -119,10 +174,10 @@ const Index = () => {
                 <Button
                   onClick={() => handleCopy(jsonXData, 'JSON X')}
                   variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
+                  size="lg"
+                  className="flex items-center gap-2 px-6 py-3"
                 >
-                  <Copy className="h-4 w-4" />
+                  <Copy className="h-5 w-5" />
                   Copy
                 </Button>
               </div>
@@ -222,10 +277,10 @@ const Index = () => {
                 <Button
                   onClick={() => handleCopy(jsonYData, 'JSON Y')}
                   variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
+                  size="lg"
+                  className="flex items-center gap-2 px-6 py-3"
                 >
-                  <Copy className="h-4 w-4" />
+                  <Copy className="h-5 w-5" />
                   Copy
                 </Button>
               </div>
