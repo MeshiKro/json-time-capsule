@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 const Index = () => {
   const [jsonXData, setJsonXData] = useState('{\n  "username": "",\n  "yourName": "",\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
   const [jsonYData, setJsonYData] = useState('{\n  "username": "",\n  "yourName": "",\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
-  const [usernameX, setUsernameX] = useState('');
-  const [yourNameX, setYourNameX] = useState('');
-  const [usernameY, setUsernameY] = useState('');
-  const [yourNameY, setYourNameY] = useState('');
+  const [username, setUsername] = useState('');
+  const [yourName, setYourName] = useState('');
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
   const { toast } = useToast();
@@ -22,27 +19,27 @@ const Index = () => {
   useEffect(() => {
     try {
       const parsedJson = JSON.parse(jsonXData);
-      parsedJson.username = usernameX;
-      parsedJson.yourName = yourNameX;
+      parsedJson.username = username;
+      parsedJson.yourName = yourName;
       const updatedJson = JSON.stringify(parsedJson, null, 2);
       setJsonXData(updatedJson);
     } catch (error) {
       // If JSON is invalid, don't update
     }
-  }, [usernameX, yourNameX]);
+  }, [username, yourName]);
 
   // Update JSON Y when username or name changes
   useEffect(() => {
     try {
       const parsedJson = JSON.parse(jsonYData);
-      parsedJson.username = usernameY;
-      parsedJson.yourName = yourNameY;
+      parsedJson.username = username;
+      parsedJson.yourName = yourName;
       const updatedJson = JSON.stringify(parsedJson, null, 2);
       setJsonYData(updatedJson);
     } catch (error) {
       // If JSON is invalid, don't update
     }
-  }, [usernameY, yourNameY]);
+  }, [username, yourName]);
 
   // Update the last updated date for JSON X
   useEffect(() => {
@@ -66,29 +63,30 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, [jsonYData]);
 
-  // Parse username and name from JSON when JSON changes manually
+  // Parse username and name from JSON when JSON changes manually (for JSON X)
   useEffect(() => {
     try {
       const parsedJson = JSON.parse(jsonXData);
-      if (parsedJson.username !== usernameX) {
-        setUsernameX(parsedJson.username || '');
+      if (parsedJson.username !== username) {
+        setUsername(parsedJson.username || '');
       }
-      if (parsedJson.yourName !== yourNameX) {
-        setYourNameX(parsedJson.yourName || '');
+      if (parsedJson.yourName !== yourName) {
+        setYourName(parsedJson.yourName || '');
       }
     } catch (error) {
       // If JSON is invalid, don't update
     }
   }, [jsonXData]);
 
+  // Parse username and name from JSON when JSON changes manually (for JSON Y)
   useEffect(() => {
     try {
       const parsedJson = JSON.parse(jsonYData);
-      if (parsedJson.username !== usernameY) {
-        setUsernameY(parsedJson.username || '');
+      if (parsedJson.username !== username) {
+        setUsername(parsedJson.username || '');
       }
-      if (parsedJson.yourName !== yourNameY) {
-        setYourNameY(parsedJson.yourName || '');
+      if (parsedJson.yourName !== yourName) {
+        setYourName(parsedJson.yourName || '');
       }
     } catch (error) {
       // If JSON is invalid, don't update
@@ -158,9 +156,49 @@ const Index = () => {
             <h1 className="text-3xl font-bold text-slate-800">JSON Editor</h1>
           </div>
           <p className="text-slate-600 text-lg">
-            Manage two separate JSON datasets with independent timestamp tracking
+            Manage two separate JSON datasets with shared username and name fields
           </p>
         </div>
+
+        {/* Shared Username and Name Fields */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <User className="h-5 w-5" />
+              Shared User Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                  <User className="h-4 w-4" />
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter username"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="yourName" className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                  <User className="h-4 w-4" />
+                  Your Name
+                </Label>
+                <Input
+                  id="yourName"
+                  value={yourName}
+                  onChange={(e) => setYourName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* JSON X Card */}
@@ -183,36 +221,6 @@ const Index = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Username inputs for JSON X */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="usernameX" className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <User className="h-4 w-4" />
-                    Username
-                  </Label>
-                  <Input
-                    id="usernameX"
-                    value={usernameX}
-                    onChange={(e) => setUsernameX(e.target.value)}
-                    placeholder="Enter username"
-                    className="text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="yourNameX" className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <User className="h-4 w-4" />
-                    Your Name
-                  </Label>
-                  <Input
-                    id="yourNameX"
-                    value={yourNameX}
-                    onChange={(e) => setYourNameX(e.target.value)}
-                    placeholder="Enter your name"
-                    className="text-sm"
-                  />
-                </div>
-              </div>
-
               <div className="relative">
                 <textarea
                   value={jsonXData}
@@ -286,36 +294,6 @@ const Index = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Username inputs for JSON Y */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="usernameY" className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <User className="h-4 w-4" />
-                    Username
-                  </Label>
-                  <Input
-                    id="usernameY"
-                    value={usernameY}
-                    onChange={(e) => setUsernameY(e.target.value)}
-                    placeholder="Enter username"
-                    className="text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="yourNameY" className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <User className="h-4 w-4" />
-                    Your Name
-                  </Label>
-                  <Input
-                    id="yourNameY"
-                    value={yourNameY}
-                    onChange={(e) => setYourNameY(e.target.value)}
-                    placeholder="Enter your name"
-                    className="text-sm"
-                  />
-                </div>
-              </div>
-
               <div className="relative">
                 <textarea
                   value={jsonYData}
@@ -372,7 +350,7 @@ const Index = () => {
 
         {/* Footer */}
         <div className="text-center text-sm text-slate-500">
-          <p>Each JSON editor tracks changes independently • Copy functionality included</p>
+          <p>Each JSON editor tracks changes independently • Shared username and name fields • Copy functionality included</p>
         </div>
       </div>
     </div>
