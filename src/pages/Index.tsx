@@ -2,12 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Copy, FileJson, Calendar } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Copy, FileJson, Calendar, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [jsonXData, setJsonXData] = useState('{\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
   const [jsonYData, setJsonYData] = useState('{\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
+  const [usernameX, setUsernameX] = useState('');
+  const [yourNameX, setYourNameX] = useState('');
+  const [usernameY, setUsernameY] = useState('');
+  const [yourNameY, setYourNameY] = useState('');
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
   const { toast } = useToast();
@@ -122,6 +128,36 @@ const Index = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Username inputs for JSON X */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="usernameX" className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <User className="h-4 w-4" />
+                    Username
+                  </Label>
+                  <Input
+                    id="usernameX"
+                    value={usernameX}
+                    onChange={(e) => setUsernameX(e.target.value)}
+                    placeholder="Enter username"
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="yourNameX" className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <User className="h-4 w-4" />
+                    Your Name
+                  </Label>
+                  <Input
+                    id="yourNameX"
+                    value={yourNameX}
+                    onChange={(e) => setYourNameX(e.target.value)}
+                    placeholder="Enter your name"
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
               <div className="relative">
                 <textarea
                   value={jsonXData}
@@ -163,14 +199,6 @@ const Index = () => {
 
               <div className="flex gap-2 pt-2">
                 <Button
-                  onClick={() => setJsonXData('')}
-                  variant="outline"
-                  size="sm"
-                  className="text-slate-600"
-                >
-                  Clear
-                </Button>
-                <Button
                   onClick={() => formatJson(jsonXData, setJsonXData, 'JSON X')}
                   variant="outline"
                   size="sm"
@@ -203,6 +231,36 @@ const Index = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Username inputs for JSON Y */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="usernameY" className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <User className="h-4 w-4" />
+                    Username
+                  </Label>
+                  <Input
+                    id="usernameY"
+                    value={usernameY}
+                    onChange={(e) => setUsernameY(e.target.value)}
+                    placeholder="Enter username"
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="yourNameY" className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <User className="h-4 w-4" />
+                    Your Name
+                  </Label>
+                  <Input
+                    id="yourNameY"
+                    value={yourNameY}
+                    onChange={(e) => setYourNameY(e.target.value)}
+                    placeholder="Enter your name"
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
               <div className="relative">
                 <textarea
                   value={jsonYData}
@@ -243,14 +301,6 @@ const Index = () => {
               </Card>
 
               <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => setJsonYData('')}
-                  variant="outline"
-                  size="sm"
-                  className="text-slate-600"
-                >
-                  Clear
-                </Button>
                 <Button
                   onClick={() => formatJson(jsonYData, setJsonYData, 'JSON Y')}
                   variant="outline"
