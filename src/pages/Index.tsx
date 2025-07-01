@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,13 +15,18 @@ const Index = () => {
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminUsername, setAdminUsername] = useState('');
   const { toast } = useToast();
+
+  // Define authorized admin username
+  const AUTHORIZED_ADMIN = 'admin';
 
   // Load username, name, and admin mode from localStorage on component mount
   useEffect(() => {
     const savedUsername = localStorage.getItem('json-editor-username');
     const savedYourName = localStorage.getItem('json-editor-yourname');
     const savedAdminMode = localStorage.getItem('json-editor-admin-mode');
+    const savedAdminUsername = localStorage.getItem('json-editor-admin-username');
     
     if (savedUsername) {
       setUsername(savedUsername);
@@ -30,7 +34,10 @@ const Index = () => {
     if (savedYourName) {
       setYourName(savedYourName);
     }
-    if (savedAdminMode) {
+    if (savedAdminUsername) {
+      setAdminUsername(savedAdminUsername);
+    }
+    if (savedAdminMode && savedAdminUsername === AUTHORIZED_ADMIN) {
       setIsAdminMode(savedAdminMode === 'true');
     }
   }, []);
@@ -49,10 +56,19 @@ const Index = () => {
     }
   }, [yourName]);
 
-  // Save admin mode to localStorage when it changes
+  // Save admin username to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('json-editor-admin-mode', isAdminMode.toString());
-  }, [isAdminMode]);
+    localStorage.setItem('json-editor-admin-username', adminUsername);
+  }, [adminUsername]);
+
+  // Save admin mode to localStorage when it changes (only if authorized)
+  useEffect(() => {
+    if (adminUsername === AUTHORIZED_ADMIN) {
+      localStorage.setItem('json-editor-admin-mode', isAdminMode.toString());
+    } else {
+      localStorage.setItem('json-editor-admin-mode', 'false');
+    }
+  }, [isAdminMode, adminUsername]);
 
   // Update JSON X when username or name changes
   useEffect(() => {
@@ -131,6 +147,21 @@ const Index = () => {
       // If JSON is invalid, don't update
     }
   }, [jsonYData]);
+
+  // Check if current user is authorized admin
+  const isAuthorizedAdmin = adminUsername === AUTHORIZED_ADMIN;
+
+  const handleAdminModeToggle = (checked: boolean) => {
+    if (!isAuthorizedAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "Only authorized administrators can enable admin mode",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsAdminMode(checked);
+  };
 
   const handleCopy = async (data: string, type: string) => {
     try {
@@ -228,17 +259,36 @@ const Index = () => {
               Administrator Mode
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
+                Admin Username
+              </Label>
+              <Input
+                id="admin-username"
+                value={adminUsername}
+                onChange={(e) => setAdminUsername(e.target.value)}
+                placeholder="Enter admin username"
+                className="text-sm"
+              />
+            </div>
             <div className="flex items-center space-x-3">
               <Switch
                 id="admin-mode"
-                checked={isAdminMode}
-                onCheckedChange={setIsAdminMode}
+                checked={isAdminMode && isAuthorizedAdmin}
+                onCheckedChange={handleAdminModeToggle}
+                disabled={!isAuthorizedAdmin}
               />
               <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
-                {isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted'}
+                {isAuthorizedAdmin 
+                  ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
+                  : 'Enter valid admin username to enable admin mode'
+                }
               </Label>
             </div>
+            {!isAuthorizedAdmin && adminUsername && (
+              <p className="text-sm text-red-600">Invalid admin username. Access denied.</p>
+            )}
           </CardContent>
         </Card>
 
@@ -313,10 +363,10 @@ const Index = () => {
                       : 'border-red-200 focus:border-red-400 bg-red-50/50'
                   } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                     isValidJson(jsonXData) ? 'focus:ring-green-300' : 'focus:ring-red-300'
-                  } ${!isAdminMode ? 'cursor-not-allowed opacity-60' : ''}`}
+                  } ${!(isAdminMode && isAuthorizedAdmin) ? 'cursor-not-allowed opacity-60' : ''}`}
                   placeholder="Enter JSON X data here..."
                   spellCheck={false}
-                  readOnly={!isAdminMode}
+                  readOnly={!(isAdminMode && isAuthorizedAdmin)}
                 />
                 <div className="absolute top-2 right-2">
                   <div
@@ -349,7 +399,7 @@ const Index = () => {
                   variant="outline"
                   size="sm"
                   className="text-slate-600"
-                  disabled={!isValidJson(jsonXData) || !isAdminMode}
+                  disabled={!isValidJson(jsonXData) || !(isAdminMode && isAuthorizedAdmin)}
                 >
                   Format
                 </Button>
@@ -387,10 +437,10 @@ const Index = () => {
                       : 'border-red-200 focus:border-red-400 bg-red-50/50'
                   } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                     isValidJson(jsonYData) ? 'focus:ring-green-300' : 'focus:ring-red-300'
-                  } ${!isAdminMode ? 'cursor-not-allowed opacity-60' : ''}`}
+                  } ${!(isAdminMode && isAuthorizedAdmin) ? 'cursor-not-allowed opacity-60' : ''}`}
                   placeholder="Enter JSON Y data here..."
                   spellCheck={false}
-                  readOnly={!isAdminMode}
+                  readOnly={!(isAdminMode && isAuthorizedAdmin)}
                 />
                 <div className="absolute top-2 right-2">
                   <div
@@ -423,7 +473,7 @@ const Index = () => {
                   variant="outline"
                   size="sm"
                   className="text-slate-600"
-                  disabled={!isValidJson(jsonYData) || !isAdminMode}
+                  disabled={!isValidJson(jsonYData) || !(isAdminMode && isAuthorizedAdmin)}
                 >
                   Format
                 </Button>
