@@ -251,47 +251,6 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Administrator Mode Toggle */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-slate-700">
-              <Shield className="h-5 w-5" />
-              Administrator Mode
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
-                Admin Username
-              </Label>
-              <Input
-                id="admin-username"
-                value={adminUsername}
-                onChange={(e) => setAdminUsername(e.target.value)}
-                placeholder="Enter admin username"
-                className="text-sm"
-              />
-            </div>
-            <div className="flex items-center space-x-3">
-              <Switch
-                id="admin-mode"
-                checked={isAdminMode && isAuthorizedAdmin}
-                onCheckedChange={handleAdminModeToggle}
-                disabled={!isAuthorizedAdmin}
-              />
-              <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
-                {isAuthorizedAdmin 
-                  ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
-                  : 'Enter valid admin username to enable admin mode'
-                }
-              </Label>
-            </div>
-            {!isAuthorizedAdmin && adminUsername && (
-              <p className="text-sm text-red-600">Invalid admin username. Access denied.</p>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Shared Username and Name Fields */}
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
@@ -481,6 +440,47 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Administrator Mode Toggle - Moved to bottom */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <Shield className="h-5 w-5" />
+              Administrator Mode
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
+                Admin Username
+              </Label>
+              <Input
+                id="admin-username"
+                value={adminUsername}
+                onChange={(e) => setAdminUsername(e.target.value)}
+                placeholder="Enter admin username"
+                className="text-sm"
+              />
+            </div>
+            <div className="flex items-center space-x-3">
+              <Switch
+                id="admin-mode"
+                checked={isAdminMode && isAuthorizedAdmin}
+                onCheckedChange={handleAdminModeToggle}
+                disabled={!isAuthorizedAdmin}
+              />
+              <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
+                {isAuthorizedAdmin 
+                  ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
+                  : 'Enter valid admin username to enable admin mode'
+                }
+              </Label>
+            </div>
+            {!isAuthorizedAdmin && adminUsername && (
+              <p className="text-sm text-red-600">Invalid admin username. Access denied.</p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Footer */}
         <div className="text-center text-sm text-slate-500">
