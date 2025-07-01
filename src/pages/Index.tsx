@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, FileJson, Calendar, User } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Copy, FileJson, Calendar, User, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -13,18 +15,23 @@ const Index = () => {
   const [yourName, setYourName] = useState('');
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
+  const [isAdminMode, setIsAdminMode] = useState(false);
   const { toast } = useToast();
 
-  // Load username and name from localStorage on component mount
+  // Load username, name, and admin mode from localStorage on component mount
   useEffect(() => {
     const savedUsername = localStorage.getItem('json-editor-username');
     const savedYourName = localStorage.getItem('json-editor-yourname');
+    const savedAdminMode = localStorage.getItem('json-editor-admin-mode');
     
     if (savedUsername) {
       setUsername(savedUsername);
     }
     if (savedYourName) {
       setYourName(savedYourName);
+    }
+    if (savedAdminMode) {
+      setIsAdminMode(savedAdminMode === 'true');
     }
   }, []);
 
@@ -41,6 +48,11 @@ const Index = () => {
       localStorage.setItem('json-editor-yourname', yourName);
     }
   }, [yourName]);
+
+  // Save admin mode to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('json-editor-admin-mode', isAdminMode.toString());
+  }, [isAdminMode]);
 
   // Update JSON X when username or name changes
   useEffect(() => {
@@ -157,6 +169,15 @@ const Index = () => {
   };
 
   const formatJson = (data: string, setter: (value: string) => void, type: string) => {
+    if (!isAdminMode) {
+      toast({
+        title: "Access Denied",
+        description: "Admin mode required to format JSON",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const formatted = JSON.stringify(JSON.parse(data), null, 2);
       setter(formatted);
@@ -173,6 +194,18 @@ const Index = () => {
     }
   };
 
+  const handleJsonChange = (value: string, setter: (value: string) => void, type: string) => {
+    if (!isAdminMode) {
+      toast({
+        title: "Access Denied",
+        description: "Admin mode required to edit JSON",
+        variant: "destructive",
+      });
+      return;
+    }
+    setter(value);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -186,6 +219,28 @@ const Index = () => {
             Manage two separate JSON datasets with shared username and name fields
           </p>
         </div>
+
+        {/* Administrator Mode Toggle */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <Shield className="h-5 w-5" />
+              Administrator Mode
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-3">
+              <Switch
+                id="admin-mode"
+                checked={isAdminMode}
+                onCheckedChange={setIsAdminMode}
+              />
+              <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
+                {isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted'}
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Shared Username and Name Fields */}
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
@@ -251,16 +306,17 @@ const Index = () => {
               <div className="relative">
                 <textarea
                   value={jsonXData}
-                  onChange={(e) => setJsonXData(e.target.value)}
+                  onChange={(e) => handleJsonChange(e.target.value, setJsonXData, 'JSON X')}
                   className={`w-full min-h-[300px] p-4 rounded-lg border-2 font-mono text-sm leading-relaxed resize-y transition-colors ${
                     isValidJson(jsonXData)
                       ? 'border-green-200 focus:border-green-400 bg-green-50/50'
                       : 'border-red-200 focus:border-red-400 bg-red-50/50'
                   } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                     isValidJson(jsonXData) ? 'focus:ring-green-300' : 'focus:ring-red-300'
-                  }`}
+                  } ${!isAdminMode ? 'cursor-not-allowed opacity-60' : ''}`}
                   placeholder="Enter JSON X data here..."
                   spellCheck={false}
+                  readOnly={!isAdminMode}
                 />
                 <div className="absolute top-2 right-2">
                   <div
@@ -293,7 +349,7 @@ const Index = () => {
                   variant="outline"
                   size="sm"
                   className="text-slate-600"
-                  disabled={!isValidJson(jsonXData)}
+                  disabled={!isValidJson(jsonXData) || !isAdminMode}
                 >
                   Format
                 </Button>
@@ -324,16 +380,17 @@ const Index = () => {
               <div className="relative">
                 <textarea
                   value={jsonYData}
-                  onChange={(e) => setJsonYData(e.target.value)}
+                  onChange={(e) => handleJsonChange(e.target.value, setJsonYData, 'JSON Y')}
                   className={`w-full min-h-[300px] p-4 rounded-lg border-2 font-mono text-sm leading-relaxed resize-y transition-colors ${
                     isValidJson(jsonYData)
                       ? 'border-green-200 focus:border-green-400 bg-green-50/50'
                       : 'border-red-200 focus:border-red-400 bg-red-50/50'
                   } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                     isValidJson(jsonYData) ? 'focus:ring-green-300' : 'focus:ring-red-300'
-                  }`}
+                  } ${!isAdminMode ? 'cursor-not-allowed opacity-60' : ''}`}
                   placeholder="Enter JSON Y data here..."
                   spellCheck={false}
+                  readOnly={!isAdminMode}
                 />
                 <div className="absolute top-2 right-2">
                   <div
@@ -366,7 +423,7 @@ const Index = () => {
                   variant="outline"
                   size="sm"
                   className="text-slate-600"
-                  disabled={!isValidJson(jsonYData)}
+                  disabled={!isValidJson(jsonYData) || !isAdminMode}
                 >
                   Format
                 </Button>
