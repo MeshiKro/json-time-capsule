@@ -1,89 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Copy, FileJson, Calendar, User, Shield } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { FileJson } from "lucide-react";
+import AdminDialog from "@/components/AdminDialog";
+import UserInfoCard from "@/components/UserInfoCard";
+import JsonEditorCard from "@/components/JsonEditorCard";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [jsonXData, setJsonXData] = useState('{\n  "username": "",\n  "yourName": "",\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
-  const [jsonYData, setJsonYData] = useState('{\n  "username": "",\n  "yourName": "",\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}');
-  const [username, setUsername] = useState('');
-  const [yourName, setYourName] = useState('');
+  const [jsonXData, setJsonXData] = useState(
+    '{\n  "username": "",\n  "yourName": "",\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}'
+  );
+  const [jsonYData, setJsonYData] = useState(
+    '{\n  "username": "",\n  "yourName": "",\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}'
+  );
+  const [username, setUsername] = useState("");
+  const [yourName, setYourName] = useState("");
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [adminUsername, setAdminUsername] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
+  const [editingAllowed, setEditingAllowed] = useState(false);
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
-  const { toast } = useToast();
-
-  // Define authorized admin credentials
-  const AUTHORIZED_ADMIN = 'admin';
-  const AUTHORIZED_PASSWORD = 'admin';
-
-  // Load username, name, and admin mode from localStorage on component mount
-  useEffect(() => {
-    const savedUsername = localStorage.getItem('json-editor-username');
-    const savedYourName = localStorage.getItem('json-editor-yourname');
-    const savedAdminMode = localStorage.getItem('json-editor-admin-mode');
-    const savedAdminUsername = localStorage.getItem('json-editor-admin-username');
-    
-    if (savedUsername) {
-      setUsername(savedUsername);
-    }
-    if (savedYourName) {
-      setYourName(savedYourName);
-    }
-    if (savedAdminUsername) {
-      setAdminUsername(savedAdminUsername);
-    }
-    if (savedAdminMode && savedAdminUsername === AUTHORIZED_ADMIN) {
-      setIsAdminMode(savedAdminMode === 'true');
-    }
-  }, []);
-
-  // Save username to localStorage when it changes
-  useEffect(() => {
-    if (username) {
-      localStorage.setItem('json-editor-username', username);
-    }
-  }, [username]);
-
-  // Save yourName to localStorage when it changes
-  useEffect(() => {
-    if (yourName) {
-      localStorage.setItem('json-editor-yourname', yourName);
-    }
-  }, [yourName]);
-
-  // Save admin username to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('json-editor-admin-username', adminUsername);
-  }, [adminUsername]);
-
-  // Auto-enable admin mode when valid credentials are entered
-  useEffect(() => {
-    if (adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD && !isAdminMode) {
-      setIsAdminMode(true);
-    }
-    // Auto-disable if creds become invalid
-    if (!(adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD) && isAdminMode) {
-      setIsAdminMode(false);
-    }
-  }, [adminUsername, adminPassword, isAdminMode]);
-
-  // Save admin mode to localStorage when it changes (only if authorized)
-  useEffect(() => {
-    if (adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD) {
-      localStorage.setItem('json-editor-admin-mode', isAdminMode.toString());
-    } else {
-      localStorage.setItem('json-editor-admin-mode', 'false');
-    }
-  }, [isAdminMode, adminUsername, adminPassword]);
 
   // Update JSON X when username or name changes
   useEffect(() => {
@@ -138,10 +75,10 @@ const Index = () => {
     try {
       const parsedJson = JSON.parse(jsonXData);
       if (parsedJson.username !== username) {
-        setUsername(parsedJson.username || '');
+        setUsername(parsedJson.username || "");
       }
       if (parsedJson.yourName !== yourName) {
-        setYourName(parsedJson.yourName || '');
+        setYourName(parsedJson.yourName || "");
       }
     } catch (error) {
       // If JSON is invalid, don't update
@@ -153,57 +90,34 @@ const Index = () => {
     try {
       const parsedJson = JSON.parse(jsonYData);
       if (parsedJson.username !== username) {
-        setUsername(parsedJson.username || '');
+        setUsername(parsedJson.username || "");
       }
       if (parsedJson.yourName !== yourName) {
-        setYourName(parsedJson.yourName || '');
+        setYourName(parsedJson.yourName || "");
       }
     } catch (error) {
       // If JSON is invalid, don't update
     }
   }, [jsonYData]);
 
-  // Check if current user is authorized admin
-  const isAuthorizedAdmin = adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD;
-  // Editing allowed only when admin mode is enabled by authorized admin
-  const editingAllowed = isAdminMode && isAuthorizedAdmin;
-  
-  const handleAdminModeToggle = (checked: boolean) => {
-    if (!isAuthorizedAdmin) {
-      toast({
-        title: "Access Denied",
-        description: "Only authorized administrators can enable admin mode",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsAdminMode(checked);
-  };
+  // Admin logic is now handled in AdminDialog. Only editingAllowed is used here.
 
   const handleCopy = async (data: string, type: string) => {
     try {
       await navigator.clipboard.writeText(data);
-      toast({
-        title: "Copied!",
-        description: `${type} data has been copied to clipboard`,
-      });
     } catch (err) {
-      toast({
-        title: "Copy failed",
-        description: "Could not copy to clipboard",
-        variant: "destructive",
-      });
+      // Could not copy to clipboard
     }
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
@@ -216,333 +130,79 @@ const Index = () => {
     }
   };
 
-  const formatJson = (data: string, setter: (value: string) => void, type: string) => {
-    if (!isAdminMode) {
-      toast({
-        title: "Access Denied",
-        description: "Admin mode required to format JSON",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+  const formatJson = (
+    data: string,
+    setter: (value: string) => void,
+    type: string
+  ) => {
     try {
       const formatted = JSON.stringify(JSON.parse(data), null, 2);
       setter(formatted);
-      toast({
-        title: "Formatted!",
-        description: `${type} has been formatted with proper indentation`,
-      });
     } catch {
-      toast({
-        title: "Format failed",
-        description: "Invalid JSON cannot be formatted",
-        variant: "destructive",
-      });
+      // Invalid JSON, do nothing
     }
   };
 
-  const handleJsonChange = (value: string, setter: (value: string) => void, type: string) => {
-    if (!isAdminMode) {
-      toast({
-        title: "Access Denied",
-        description: "Admin mode required to edit JSON",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleJsonChange = (
+    value: string,
+    setter: (value: string) => void,
+    type: string
+  ) => {
     setter(value);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <FileJson className="h-8 w-8 text-slate-600" />
-            <h1 className="text-3xl font-bold text-slate-800">JSON Editor</h1>
-          </div>
-          <p className="text-slate-600 text-lg">
-            Manage two separate JSON datasets with shared username and name fields
-          </p>
-        </div>
+        <Header />
         <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => setIsAdminDialogOpen(true)} className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAdminDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
             Admin Mode
           </Button>
         </div>
-        <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
-          <DialogContent className="sm:max-w-[480px]">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Administrator Mode
-              </DialogTitle>
-              <DialogDescription>
-                Enter valid admin credentials to enable admin mode.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
-                    Admin Username
-                  </Label>
-                  <Input
-                    id="admin-username"
-                    value={adminUsername}
-                    onChange={(e) => setAdminUsername(e.target.value)}
-                    placeholder="Enter admin username"
-                    className="text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="admin-password" className="text-sm font-medium text-slate-600">
-                    Admin Password
-                  </Label>
-                  <Input
-                    id="admin-password"
-                    type="password"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    placeholder="Enter admin password"
-                    className="text-sm"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Switch
-                  id="admin-mode"
-                  checked={isAdminMode && isAuthorizedAdmin}
-                  onCheckedChange={handleAdminModeToggle}
-                  disabled={!isAuthorizedAdmin}
-                />
-                <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
-                  {isAuthorizedAdmin 
-                    ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
-                    : 'Enter valid admin username and password to enable admin mode'
-                  }
-                </Label>
-              </div>
-              {!isAuthorizedAdmin && (adminUsername || adminPassword) && (
-                <p className="text-sm text-red-600">Invalid admin credentials. Access denied.</p>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="secondary" onClick={() => setIsAdminDialogOpen(false)}>Close</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        {/* Shared Username and Name Fields */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-slate-700">
-              <User className="h-5 w-5" />
-              Shared User Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                  <User className="h-4 w-4" />
-                  Username
-                </Label>
-                <Input
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username"
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="yourName" className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                  <User className="h-4 w-4" />
-                  Your Name
-                </Label>
-                <Input
-                  id="yourName"
-                  value={yourName}
-                  onChange={(e) => setYourName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="text-sm"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <AdminDialog
+          open={isAdminDialogOpen}
+          onOpenChange={setIsAdminDialogOpen}
+          onChangeEditingAllowed={setEditingAllowed}
+        />
+        <UserInfoCard
+          username={username}
+          setUsername={setUsername}
+          yourName={yourName}
+          setYourName={setYourName}
+        />
 
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* JSON X Card */}
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-slate-700">
-                  <FileJson className="h-5 w-5" />
-                  JSON X
-                </CardTitle>
-                <Button
-                  onClick={() => handleCopy(jsonXData, 'JSON X')}
-                  variant="outline"
-                  size="lg"
-                  className="flex items-center gap-2 px-6 py-3"
-                >
-                  <Copy className="h-5 w-5" />
-                  Copy
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <textarea
-                  value={jsonXData}
-                  onChange={(e) => handleJsonChange(e.target.value, setJsonXData, 'JSON X')}
-                  className={`w-full min-h-[300px] p-4 rounded-lg border-2 font-mono text-sm leading-relaxed resize-y transition-colors ${
-                    editingAllowed
-                      ? (isValidJson(jsonXData)
-                          ? 'border-green-200 focus:border-green-400 bg-green-50/50'
-                          : 'border-red-200 focus:border-red-400 bg-red-50/50')
-                      : 'border-slate-200 focus:border-slate-300 bg-white'
-                  } focus:outline-none ${
-                    editingAllowed
-                      ? (isValidJson(jsonXData) ? 'focus:ring-2 focus:ring-offset-2 focus:ring-green-300' : 'focus:ring-2 focus:ring-offset-2 focus:ring-red-300')
-                      : ''
-                  } ${!editingAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
-                  placeholder="Enter JSON X data here..."
-                  spellCheck={false}
-                  readOnly={!editingAllowed}
-                />
-                {editingAllowed && (
-                  <div className="absolute top-2 right-2">
-                    <div
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        isValidJson(jsonXData)
-                          ? 'bg-green-100 text-green-700 border border-green-200'
-                          : 'bg-red-100 text-red-700 border border-red-200'
-                      }`}
-                    >
-                      {isValidJson(jsonXData) ? 'Valid JSON' : 'Invalid JSON'}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Card className="bg-slate-50 border border-slate-200">
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <Calendar className="h-4 w-4" />
-                    <span className="text-sm font-medium">Last Updated:</span>
-                    <span className="text-sm font-mono bg-white px-2 py-1 rounded border">
-                      {formatDate(lastUpdatedX)}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => formatJson(jsonXData, setJsonXData, 'JSON X')}
-                  variant="outline"
-                  size="sm"
-                  className="text-slate-600"
-                  disabled={!isValidJson(jsonXData) || !(isAdminMode && isAuthorizedAdmin)}
-                >
-                  Format
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* JSON Y Card */}
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-slate-700">
-                  <FileJson className="h-5 w-5" />
-                  JSON Y
-                </CardTitle>
-                <Button
-                  onClick={() => handleCopy(jsonYData, 'JSON Y')}
-                  variant="outline"
-                  size="lg"
-                  className="flex items-center gap-2 px-6 py-3"
-                >
-                  <Copy className="h-5 w-5" />
-                  Copy
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <textarea
-                  value={jsonYData}
-                  onChange={(e) => handleJsonChange(e.target.value, setJsonYData, 'JSON Y')}
-                  className={`w-full min-h-[300px] p-4 rounded-lg border-2 font-mono text-sm leading-relaxed resize-y transition-colors ${
-                    editingAllowed
-                      ? (isValidJson(jsonYData)
-                          ? 'border-green-200 focus:border-green-400 bg-green-50/50'
-                          : 'border-red-200 focus:border-red-400 bg-red-50/50')
-                      : 'border-slate-200 focus:border-slate-300 bg-white'
-                  } focus:outline-none ${
-                    editingAllowed
-                      ? (isValidJson(jsonYData) ? 'focus:ring-2 focus:ring-offset-2 focus:ring-green-300' : 'focus:ring-2 focus:ring-offset-2 focus:ring-red-300')
-                      : ''
-                  } ${!editingAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
-                  placeholder="Enter JSON Y data here..."
-                  spellCheck={false}
-                  readOnly={!editingAllowed}
-                />
-                {editingAllowed && (
-                  <div className="absolute top-2 right-2">
-                    <div
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        isValidJson(jsonYData)
-                          ? 'bg-green-100 text-green-700 border border-green-200'
-                          : 'bg-red-100 text-red-700 border border-red-200'
-                      }`}
-                    >
-                      {isValidJson(jsonYData) ? 'Valid JSON' : 'Invalid JSON'}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Card className="bg-slate-50 border border-slate-200">
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <Calendar className="h-4 w-4" />
-                    <span className="text-sm font-medium">Last Updated:</span>
-                    <span className="text-sm font-mono bg-white px-2 py-1 rounded border">
-                      {formatDate(lastUpdatedY)}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => formatJson(jsonYData, setJsonYData, 'JSON Y')}
-                  variant="outline"
-                  size="sm"
-                  className="text-slate-600"
-                  disabled={!isValidJson(jsonYData) || !(isAdminMode && isAuthorizedAdmin)}
-                >
-                  Format
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <JsonEditorCard
+            title="JSON X"
+            jsonData={jsonXData}
+            setJsonData={setJsonXData}
+            lastUpdated={lastUpdatedX}
+            handleCopy={handleCopy}
+            formatJson={formatJson}
+            handleJsonChange={handleJsonChange}
+            editingAllowed={editingAllowed}
+            isValidJson={isValidJson}
+          />
+          <JsonEditorCard
+            title="JSON Y"
+            jsonData={jsonYData}
+            setJsonData={setJsonYData}
+            lastUpdated={lastUpdatedY}
+            handleCopy={handleCopy}
+            formatJson={formatJson}
+            handleJsonChange={handleJsonChange}
+            editingAllowed={editingAllowed}
+            isValidJson={isValidJson}
+          />
         </div>
 
-        {/* Administrator Mode moved to modal dialog */}
-
-        {/* Footer */}
-        <div className="text-center text-sm text-slate-500">
-          <p>Each JSON editor tracks changes independently • Shared username and name fields • Copy functionality included</p>
-        </div>
+        <Footer />
       </div>
     </div>
   );
