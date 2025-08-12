@@ -16,10 +16,12 @@ const Index = () => {
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const { toast } = useToast();
 
-  // Define authorized admin username
+  // Define authorized admin credentials
   const AUTHORIZED_ADMIN = 'admin';
+  const AUTHORIZED_PASSWORD = 'admin';
 
   // Load username, name, and admin mode from localStorage on component mount
   useEffect(() => {
@@ -61,21 +63,25 @@ const Index = () => {
     localStorage.setItem('json-editor-admin-username', adminUsername);
   }, [adminUsername]);
 
-  // Auto-enable admin mode when a valid admin username is entered
+  // Auto-enable admin mode when valid credentials are entered
   useEffect(() => {
-    if (adminUsername === AUTHORIZED_ADMIN && !isAdminMode) {
+    if (adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD && !isAdminMode) {
       setIsAdminMode(true);
     }
-  }, [adminUsername]);
+    // Auto-disable if creds become invalid
+    if (!(adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD) && isAdminMode) {
+      setIsAdminMode(false);
+    }
+  }, [adminUsername, adminPassword, isAdminMode]);
 
   // Save admin mode to localStorage when it changes (only if authorized)
   useEffect(() => {
-    if (adminUsername === AUTHORIZED_ADMIN) {
+    if (adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD) {
       localStorage.setItem('json-editor-admin-mode', isAdminMode.toString());
     } else {
       localStorage.setItem('json-editor-admin-mode', 'false');
     }
-  }, [isAdminMode, adminUsername]);
+  }, [isAdminMode, adminUsername, adminPassword]);
 
   // Update JSON X when username or name changes
   useEffect(() => {
@@ -156,7 +162,7 @@ const Index = () => {
   }, [jsonYData]);
 
   // Check if current user is authorized admin
-  const isAuthorizedAdmin = adminUsername === AUTHORIZED_ADMIN;
+  const isAuthorizedAdmin = adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD;
   // Editing allowed only when admin mode is enabled by authorized admin
   const editingAllowed = isAdminMode && isAuthorizedAdmin;
   
@@ -471,17 +477,32 @@ const Index = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
-                Admin Username
-              </Label>
-              <Input
-                id="admin-username"
-                value={adminUsername}
-                onChange={(e) => setAdminUsername(e.target.value)}
-                placeholder="Enter admin username"
-                className="text-sm"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
+                  Admin Username
+                </Label>
+                <Input
+                  id="admin-username"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  placeholder="Enter admin username"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="admin-password" className="text-sm font-medium text-slate-600">
+                  Admin Password
+                </Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Enter admin password"
+                  className="text-sm"
+                />
+              </div>
             </div>
             <div className="flex items-center space-x-3">
               <Switch
@@ -493,12 +514,12 @@ const Index = () => {
               <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
                 {isAuthorizedAdmin 
                   ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
-                  : 'Enter valid admin username to enable admin mode'
+                  : 'Enter valid admin username and password to enable admin mode'
                 }
               </Label>
             </div>
-            {!isAuthorizedAdmin && adminUsername && (
-              <p className="text-sm text-red-600">Invalid admin username. Access denied.</p>
+            {!isAuthorizedAdmin && (adminUsername || adminPassword) && (
+              <p className="text-sm text-red-600">Invalid admin credentials. Access denied.</p>
             )}
           </CardContent>
         </Card>
