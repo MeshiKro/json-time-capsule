@@ -150,7 +150,9 @@ const Index = () => {
 
   // Check if current user is authorized admin
   const isAuthorizedAdmin = adminUsername === AUTHORIZED_ADMIN;
-
+  // Editing allowed only when admin mode is enabled by authorized admin
+  const editingAllowed = isAdminMode && isAuthorizedAdmin;
+  
   const handleAdminModeToggle = (checked: boolean) => {
     if (!isAuthorizedAdmin) {
       toast({
@@ -317,27 +319,33 @@ const Index = () => {
                   value={jsonXData}
                   onChange={(e) => handleJsonChange(e.target.value, setJsonXData, 'JSON X')}
                   className={`w-full min-h-[300px] p-4 rounded-lg border-2 font-mono text-sm leading-relaxed resize-y transition-colors ${
-                    isValidJson(jsonXData)
-                      ? 'border-green-200 focus:border-green-400 bg-green-50/50'
-                      : 'border-red-200 focus:border-red-400 bg-red-50/50'
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    isValidJson(jsonXData) ? 'focus:ring-green-300' : 'focus:ring-red-300'
-                  } ${!(isAdminMode && isAuthorizedAdmin) ? 'cursor-not-allowed opacity-60' : ''}`}
+                    editingAllowed
+                      ? (isValidJson(jsonXData)
+                          ? 'border-green-200 focus:border-green-400 bg-green-50/50'
+                          : 'border-red-200 focus:border-red-400 bg-red-50/50')
+                      : 'border-slate-200 focus:border-slate-300 bg-white'
+                  } focus:outline-none ${
+                    editingAllowed
+                      ? (isValidJson(jsonXData) ? 'focus:ring-2 focus:ring-offset-2 focus:ring-green-300' : 'focus:ring-2 focus:ring-offset-2 focus:ring-red-300')
+                      : ''
+                  } ${!editingAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
                   placeholder="Enter JSON X data here..."
                   spellCheck={false}
-                  readOnly={!(isAdminMode && isAuthorizedAdmin)}
+                  readOnly={!editingAllowed}
                 />
-                <div className="absolute top-2 right-2">
-                  <div
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      isValidJson(jsonXData)
-                        ? 'bg-green-100 text-green-700 border border-green-200'
-                        : 'bg-red-100 text-red-700 border border-red-200'
-                    }`}
-                  >
-                    {isValidJson(jsonXData) ? 'Valid JSON' : 'Invalid JSON'}
+                {editingAllowed && (
+                  <div className="absolute top-2 right-2">
+                    <div
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        isValidJson(jsonXData)
+                          ? 'bg-green-100 text-green-700 border border-green-200'
+                          : 'bg-red-100 text-red-700 border border-red-200'
+                      }`}
+                    >
+                      {isValidJson(jsonXData) ? 'Valid JSON' : 'Invalid JSON'}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <Card className="bg-slate-50 border border-slate-200">
@@ -391,27 +399,33 @@ const Index = () => {
                   value={jsonYData}
                   onChange={(e) => handleJsonChange(e.target.value, setJsonYData, 'JSON Y')}
                   className={`w-full min-h-[300px] p-4 rounded-lg border-2 font-mono text-sm leading-relaxed resize-y transition-colors ${
-                    isValidJson(jsonYData)
-                      ? 'border-green-200 focus:border-green-400 bg-green-50/50'
-                      : 'border-red-200 focus:border-red-400 bg-red-50/50'
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    isValidJson(jsonYData) ? 'focus:ring-green-300' : 'focus:ring-red-300'
-                  } ${!(isAdminMode && isAuthorizedAdmin) ? 'cursor-not-allowed opacity-60' : ''}`}
+                    editingAllowed
+                      ? (isValidJson(jsonYData)
+                          ? 'border-green-200 focus:border-green-400 bg-green-50/50'
+                          : 'border-red-200 focus:border-red-400 bg-red-50/50')
+                      : 'border-slate-200 focus:border-slate-300 bg-white'
+                  } focus:outline-none ${
+                    editingAllowed
+                      ? (isValidJson(jsonYData) ? 'focus:ring-2 focus:ring-offset-2 focus:ring-green-300' : 'focus:ring-2 focus:ring-offset-2 focus:ring-red-300')
+                      : ''
+                  } ${!editingAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
                   placeholder="Enter JSON Y data here..."
                   spellCheck={false}
-                  readOnly={!(isAdminMode && isAuthorizedAdmin)}
+                  readOnly={!editingAllowed}
                 />
-                <div className="absolute top-2 right-2">
-                  <div
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      isValidJson(jsonYData)
-                        ? 'bg-green-100 text-green-700 border border-green-200'
-                        : 'bg-red-100 text-red-700 border border-red-200'
-                    }`}
-                  >
-                    {isValidJson(jsonYData) ? 'Valid JSON' : 'Invalid JSON'}
+                {editingAllowed && (
+                  <div className="absolute top-2 right-2">
+                    <div
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        isValidJson(jsonYData)
+                          ? 'bg-green-100 text-green-700 border border-green-200'
+                          : 'bg-red-100 text-red-700 border border-red-200'
+                      }`}
+                    >
+                      {isValidJson(jsonYData) ? 'Valid JSON' : 'Invalid JSON'}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <Card className="bg-slate-50 border border-slate-200">
