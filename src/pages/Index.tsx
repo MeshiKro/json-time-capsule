@@ -61,6 +61,13 @@ const Index = () => {
     localStorage.setItem('json-editor-admin-username', adminUsername);
   }, [adminUsername]);
 
+  // Auto-enable admin mode when a valid admin username is entered
+  useEffect(() => {
+    if (adminUsername === AUTHORIZED_ADMIN && !isAdminMode) {
+      setIsAdminMode(true);
+    }
+  }, [adminUsername]);
+
   // Save admin mode to localStorage when it changes (only if authorized)
   useEffect(() => {
     if (adminUsername === AUTHORIZED_ADMIN) {
