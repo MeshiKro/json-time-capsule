@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Copy, FileJson, Calendar, User, Shield } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -17,6 +18,7 @@ const Index = () => {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Define authorized admin credentials
@@ -265,7 +267,74 @@ const Index = () => {
             Manage two separate JSON datasets with shared username and name fields
           </p>
         </div>
-
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={() => setIsAdminDialogOpen(true)} className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Admin Mode
+          </Button>
+        </div>
+        <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
+          <DialogContent className="sm:max-w-[480px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Administrator Mode
+              </DialogTitle>
+              <DialogDescription>
+                Enter valid admin credentials to enable admin mode.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
+                    Admin Username
+                  </Label>
+                  <Input
+                    id="admin-username"
+                    value={adminUsername}
+                    onChange={(e) => setAdminUsername(e.target.value)}
+                    placeholder="Enter admin username"
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="admin-password" className="text-sm font-medium text-slate-600">
+                    Admin Password
+                  </Label>
+                  <Input
+                    id="admin-password"
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="Enter admin password"
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="admin-mode"
+                  checked={isAdminMode && isAuthorizedAdmin}
+                  onCheckedChange={handleAdminModeToggle}
+                  disabled={!isAuthorizedAdmin}
+                />
+                <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
+                  {isAuthorizedAdmin 
+                    ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
+                    : 'Enter valid admin username and password to enable admin mode'
+                  }
+                </Label>
+              </div>
+              {!isAuthorizedAdmin && (adminUsername || adminPassword) && (
+                <p className="text-sm text-red-600">Invalid admin credentials. Access denied.</p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="secondary" onClick={() => setIsAdminDialogOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         {/* Shared Username and Name Fields */}
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
@@ -468,61 +537,7 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Administrator Mode Toggle - Moved to bottom */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-slate-700">
-              <Shield className="h-5 w-5" />
-              Administrator Mode
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-username" className="text-sm font-medium text-slate-600">
-                  Admin Username
-                </Label>
-                <Input
-                  id="admin-username"
-                  value={adminUsername}
-                  onChange={(e) => setAdminUsername(e.target.value)}
-                  placeholder="Enter admin username"
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="admin-password" className="text-sm font-medium text-slate-600">
-                  Admin Password
-                </Label>
-                <Input
-                  id="admin-password"
-                  type="password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="Enter admin password"
-                  className="text-sm"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Switch
-                id="admin-mode"
-                checked={isAdminMode && isAuthorizedAdmin}
-                onCheckedChange={handleAdminModeToggle}
-                disabled={!isAuthorizedAdmin}
-              />
-              <Label htmlFor="admin-mode" className="text-sm font-medium text-slate-600">
-                {isAuthorizedAdmin 
-                  ? (isAdminMode ? 'Admin mode enabled - JSON editing allowed' : 'Admin mode disabled - JSON editing restricted')
-                  : 'Enter valid admin username and password to enable admin mode'
-                }
-              </Label>
-            </div>
-            {!isAuthorizedAdmin && (adminUsername || adminPassword) && (
-              <p className="text-sm text-red-600">Invalid admin credentials. Access denied.</p>
-            )}
-          </CardContent>
-        </Card>
+        {/* Administrator Mode moved to modal dialog */}
 
         {/* Footer */}
         <div className="text-center text-sm text-slate-500">
