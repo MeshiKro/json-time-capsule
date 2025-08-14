@@ -174,15 +174,6 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
             isValidJson={isValidJson}
             extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('X')}>{editingAllowed ? 'Edit' : 'View Large'}</button>}
           />
-          {editingAllowed && (
-            <button
-              className="mt-2 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
-              onClick={handleSaveJsonX}
-              disabled={!isValidJson(jsonXData)}
-            >
-              Save JSON X
-            </button>
-          )}
         </div>
         <div>
           <JsonEditorCard
@@ -197,15 +188,6 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
             isValidJson={isValidJson}
             extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('Y')}>{editingAllowed ? 'Edit' : 'View Large'}</button>}
           />
-          {editingAllowed && (
-            <button
-              className="mt-2 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
-              onClick={handleSaveJsonY}
-              disabled={!isValidJson(jsonYData)}
-            >
-              Save JSON Y
-            </button>
-          )}
         </div>
         <div>
           <JsonEditorCard
@@ -220,15 +202,6 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
             isValidJson={isValidJson}
             extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('Z')}>{editingAllowed ? 'Edit' : 'View Large'}</button>}
           />
-          {editingAllowed && (
-            <button
-              className="mt-2 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
-              onClick={handleSaveJsonZ}
-              disabled={!isValidJson(jsonZData)}
-            >
-              Save JSON Z
-            </button>
-          )}
         </div>
       </div>
       <Dialog open={largeView !== null} onOpenChange={() => setLargeView(null)}>
