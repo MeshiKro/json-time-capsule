@@ -156,10 +156,6 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
 
   return (
     <>
-      <UserInfoCard
-        username={username}
-        setUsername={setUsername}
-      />
       <div className="grid lg:grid-cols-3 gap-6">
         <div>
           <JsonEditorCard
@@ -307,6 +303,10 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
           )}
         </DialogContent>
       </Dialog>
+      <UserInfoCard
+        username={username}
+        setUsername={setUsername}
+      />
     </>
   );
 };
