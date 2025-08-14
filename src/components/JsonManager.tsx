@@ -220,13 +220,22 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
                 isValidJson={isValidJson}
               />
               {editingAllowed && (
-                <button
-                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
-                  onClick={handleSaveJsonX}
-                  disabled={!isValidJson(jsonXData)}
-                >
-                  Save JSON X
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className="py-2 px-4 bg-gray-600 text-white rounded disabled:opacity-50"
+                    onClick={() => formatJson(jsonXData, setJsonXData, 'JSON X')}
+                    disabled={!isValidJson(jsonXData)}
+                  >
+                    Format
+                  </button>
+                  <button
+                    className="py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50 flex-1"
+                    onClick={handleSaveJsonX}
+                    disabled={!isValidJson(jsonXData)}
+                  >
+                    Save JSON X
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -244,13 +253,22 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
                 isValidJson={isValidJson}
               />
               {editingAllowed && (
-                <button
-                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
-                  onClick={handleSaveJsonY}
-                  disabled={!isValidJson(jsonYData)}
-                >
-                  Save JSON Y
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className="py-2 px-4 bg-gray-600 text-white rounded disabled:opacity-50"
+                    onClick={() => formatJson(jsonYData, setJsonYData, 'JSON Y')}
+                    disabled={!isValidJson(jsonYData)}
+                  >
+                    Format
+                  </button>
+                  <button
+                    className="py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50 flex-1"
+                    onClick={handleSaveJsonY}
+                    disabled={!isValidJson(jsonYData)}
+                  >
+                    Save JSON Y
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -268,13 +286,22 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
                 isValidJson={isValidJson}
               />
               {editingAllowed && (
-                <button
-                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
-                  onClick={handleSaveJsonZ}
-                  disabled={!isValidJson(jsonZData)}
-                >
-                  Save JSON Z
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className="py-2 px-4 bg-gray-600 text-white rounded disabled:opacity-50"
+                    onClick={() => formatJson(jsonZData, setJsonZData, 'JSON Z')}
+                    disabled={!isValidJson(jsonZData)}
+                  >
+                    Format
+                  </button>
+                  <button
+                    className="py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50 flex-1"
+                    onClick={handleSaveJsonZ}
+                    disabled={!isValidJson(jsonZData)}
+                  >
+                    Save JSON Z
+                  </button>
+                </div>
               )}
             </div>
           )}

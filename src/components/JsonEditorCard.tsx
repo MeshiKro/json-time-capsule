@@ -116,17 +116,6 @@ const JsonEditorCard: React.FC<JsonEditorCardProps> = ({
           </div>
         </CardContent>
       </Card>
-      <div className="flex gap-2 pt-2">
-        <Button
-          onClick={() => formatJson(jsonData, setJsonData, title)}
-          variant="outline"
-          size="sm"
-          className="text-slate-600"
-          disabled={!isValidJson(jsonData) || !editingAllowed}
-        >
-          Format
-        </Button>
-      </div>
       {extraButton && <div className="pt-2">{extraButton}</div>}
     </CardContent>
   </Card>
