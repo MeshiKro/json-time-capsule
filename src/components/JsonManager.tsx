@@ -172,7 +172,7 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
             handleJsonChange={handleJsonChange}
             editingAllowed={editingAllowed}
             isValidJson={isValidJson}
-            extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('X')}>View Large</button>}
+            extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('X')}>{editingAllowed ? 'Edit' : 'View Large'}</button>}
           />
           {editingAllowed && (
             <button
@@ -195,7 +195,7 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
             handleJsonChange={handleJsonChange}
             editingAllowed={editingAllowed}
             isValidJson={isValidJson}
-            extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('Y')}>View Large</button>}
+            extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('Y')}>{editingAllowed ? 'Edit' : 'View Large'}</button>}
           />
           {editingAllowed && (
             <button
@@ -218,7 +218,7 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
             handleJsonChange={handleJsonChange}
             editingAllowed={editingAllowed}
             isValidJson={isValidJson}
-            extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('Z')}>View Large</button>}
+            extraButton={<button className="mt-2 w-full py-2 px-4 bg-gray-700 text-white rounded" onClick={() => setLargeView('Z')}>{editingAllowed ? 'Edit' : 'View Large'}</button>}
           />
           {editingAllowed && (
             <button
@@ -234,43 +234,76 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed }) => {
       <Dialog open={largeView !== null} onOpenChange={() => setLargeView(null)}>
         <DialogContent className="max-w-5xl">
           {largeView === 'X' && (
-            <JsonEditorCard
-              title="JSON X"
-              jsonData={jsonXData}
-              setJsonData={setJsonXData}
-              lastUpdated={lastUpdatedX}
-              handleCopy={handleCopy}
-              formatJson={formatJson}
-              handleJsonChange={handleJsonChange}
-              editingAllowed={editingAllowed}
-              isValidJson={isValidJson}
-            />
+            <div>
+              <JsonEditorCard
+                title="JSON X"
+                jsonData={jsonXData}
+                setJsonData={setJsonXData}
+                lastUpdated={lastUpdatedX}
+                handleCopy={handleCopy}
+                formatJson={formatJson}
+                handleJsonChange={handleJsonChange}
+                editingAllowed={editingAllowed}
+                isValidJson={isValidJson}
+              />
+              {editingAllowed && (
+                <button
+                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
+                  onClick={handleSaveJsonX}
+                  disabled={!isValidJson(jsonXData)}
+                >
+                  Save JSON X
+                </button>
+              )}
+            </div>
           )}
           {largeView === 'Y' && (
-            <JsonEditorCard
-              title="JSON Y"
-              jsonData={jsonYData}
-              setJsonData={setJsonYData}
-              lastUpdated={lastUpdatedY}
-              handleCopy={handleCopy}
-              formatJson={formatJson}
-              handleJsonChange={handleJsonChange}
-              editingAllowed={editingAllowed}
-              isValidJson={isValidJson}
-            />
+            <div>
+              <JsonEditorCard
+                title="JSON Y"
+                jsonData={jsonYData}
+                setJsonData={setJsonYData}
+                lastUpdated={lastUpdatedY}
+                handleCopy={handleCopy}
+                formatJson={formatJson}
+                handleJsonChange={handleJsonChange}
+                editingAllowed={editingAllowed}
+                isValidJson={isValidJson}
+              />
+              {editingAllowed && (
+                <button
+                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
+                  onClick={handleSaveJsonY}
+                  disabled={!isValidJson(jsonYData)}
+                >
+                  Save JSON Y
+                </button>
+              )}
+            </div>
           )}
           {largeView === 'Z' && (
-            <JsonEditorCard
-              title="JSON Z"
-              jsonData={jsonZData}
-              setJsonData={setJsonZData}
-              lastUpdated={lastUpdatedZ}
-              handleCopy={handleCopy}
-              formatJson={formatJson}
-              handleJsonChange={handleJsonChange}
-              editingAllowed={editingAllowed}
-              isValidJson={isValidJson}
-            />
+            <div>
+              <JsonEditorCard
+                title="JSON Z"
+                jsonData={jsonZData}
+                setJsonData={setJsonZData}
+                lastUpdated={lastUpdatedZ}
+                handleCopy={handleCopy}
+                formatJson={formatJson}
+                handleJsonChange={handleJsonChange}
+                editingAllowed={editingAllowed}
+                isValidJson={isValidJson}
+              />
+              {editingAllowed && (
+                <button
+                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded disabled:opacity-50"
+                  onClick={handleSaveJsonZ}
+                  disabled={!isValidJson(jsonZData)}
+                >
+                  Save JSON Z
+                </button>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
