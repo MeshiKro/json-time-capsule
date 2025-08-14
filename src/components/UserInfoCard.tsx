@@ -11,17 +11,17 @@ interface UserInfoCardProps {
 
 
 const UserInfoCard: React.FC<UserInfoCardProps> = ({ username, setUsername }) => (
-  <Card className="shadow-md border-0 bg-white/80 backdrop-blur-sm max-w-md">
-    <CardHeader className="pb-2 pt-3">
-      <CardTitle className="flex items-center gap-2 text-slate-700 text-sm">
-        <User className="h-4 w-4" />
+  <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm w-full max-w-2xl mx-auto">
+    <CardHeader className="pb-4">
+      <CardTitle className="flex items-center gap-2 text-slate-700 text-lg">
+        <User className="h-6 w-6" />
         Shared User Information
       </CardTitle>
     </CardHeader>
-    <CardContent className="pt-0 pb-3">
-      <div className="space-y-1">
-        <Label htmlFor="username" className="flex items-center gap-1 text-xs font-medium text-slate-600">
-          <User className="h-3 w-3" />
+    <CardContent>
+      <div className="space-y-3">
+        <Label htmlFor="username" className="flex items-center gap-2 text-base font-medium text-slate-600">
+          <User className="h-5 w-5" />
           Username
         </Label>
         <Input
@@ -29,7 +29,7 @@ const UserInfoCard: React.FC<UserInfoCardProps> = ({ username, setUsername }) =>
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter username"
-          className="text-xs h-8"
+          className="text-base h-12"
         />
       </div>
     </CardContent>
