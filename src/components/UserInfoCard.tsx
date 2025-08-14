@@ -11,7 +11,7 @@ interface UserInfoCardProps {
 
 
 const UserInfoCard: React.FC<UserInfoCardProps> = ({ username, setUsername }) => (
-  <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm w-full max-w-2xl mx-auto">
+  <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
     <CardHeader className="pb-4">
       <CardTitle className="flex items-center gap-2 text-slate-700 text-lg">
         <User className="h-6 w-6" />
