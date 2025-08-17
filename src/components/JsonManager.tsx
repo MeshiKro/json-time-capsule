@@ -9,40 +9,73 @@ interface JsonManagerProps {
 }
 
 const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed, subName }) => {
-  const [jsonXData, setJsonXData] = useState(() => {
-    const saved = localStorage.getItem('json-x-data');
-    return saved || '{\n  "subName": "",\n  "example": "JSON X data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}';
-  });
-  const [jsonYData, setJsonYData] = useState(() => {
-    const saved = localStorage.getItem('json-y-data');
-    return saved || '{\n  "subName": "",\n  "example": "JSON Y data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}';
-  });
-  // subName is now passed as a prop from parent
-  const [jsonZData, setJsonZData] = useState(() => {
-    const saved = localStorage.getItem('json-z-data');
-    return saved || '{\n  "subName": "",\n  "example": "JSON Z data",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "key": "value"\n  }\n}';
-  });
-  const [lastUpdatedZ, setLastUpdatedZ] = useState<Date>(new Date());
-  const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
-  const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
-
-  // Update all JSONs when subName changes
+  // When subName changes, update it in all JSONs and persist
   useEffect(() => {
     if (typeof subName !== 'string') return;
-    try {
-      const updateJson = (json: string) => {
+    const updateJson = (json: string) => {
+      try {
         const parsed = JSON.parse(json);
         parsed.subName = subName;
         if ('yourName' in parsed) delete parsed.yourName;
         return JSON.stringify(parsed, null, 2);
-      };
-      setJsonXData(j => updateJson(j));
-      setJsonYData(j => updateJson(j));
-      setJsonZData(j => updateJson(j));
-    } catch {}
+      } catch {
+        return json;
+      }
+    };
+    setJsonXData(j => {
+      const updated = updateJson(j);
+      fetch('/data/json-x.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: updated,
+      });
+      localStorage.setItem('json-x-data', updated);
+      return updated;
+    });
+    setJsonYData(j => {
+      const updated = updateJson(j);
+      fetch('/data/json-y.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: updated,
+      });
+      localStorage.setItem('json-y-data', updated);
+      return updated;
+    });
+    setJsonZData(j => {
+      const updated = updateJson(j);
+      fetch('/data/json-z.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: updated,
+      });
+      localStorage.setItem('json-z-data', updated);
+      return updated;
+    });
   }, [subName]);
+  const [jsonXData, setJsonXData] = useState<string>("");
+  const [jsonYData, setJsonYData] = useState<string>("");
+  const [jsonZData, setJsonZData] = useState<string>("");
 
-  // Remove auto-update of lastUpdatedX and lastUpdatedY on JSON change
+  // Load JSON files from data directory on mount if not in localStorage
+  useEffect(() => {
+    const loadJson = async (file: string, storageKey: string, setter: (v: string) => void) => {
+      try {
+        // Fetch from public/data, not src/data
+        const res = await fetch(`/src/data/${file}`);
+        if (res.ok) {
+          const text = await res.text();
+          setter(text);
+        }
+      } catch {}
+    };
+    loadJson('json-x.json', 'json-x-data', setJsonXData);
+    loadJson('json-y.json', 'json-y-data', setJsonYData);
+    loadJson('json-z.json', 'json-z-data', setJsonZData);
+  }, []);
+  const [lastUpdatedZ, setLastUpdatedZ] = useState<Date>(new Date());
+  const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
+  const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
 
   // Parse subName from JSON when JSON changes manually (for JSON X)
   useEffect(() => {

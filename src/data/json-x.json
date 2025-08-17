@@ -1,6 +1,6 @@
 {
   "subName": "",
-  "example": "JSON X data",
+  "testee": "JSON X data",
   "timestamp": "2024-01-01T00:00:00Z",
   "data": {
     "key": "value"
