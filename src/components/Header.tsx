@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ onAdminMode, subName, onSubNameChange }
           <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSubDialogOpen(false)} />
           {/* Modal */}
           <div className="relative bg-white rounded-xl shadow-2xl p-8 w-full max-w-md sm:max-w-lg mx-4 animate-fade-in">
-            <div className="mb-4 text-xl font-bold text-slate-800">Edit Subname</div>
+            <div className="mb-4 text-xl font-bold text-slate-800">Edit Subscription Name</div>
             <input
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}

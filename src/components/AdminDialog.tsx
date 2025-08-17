@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Shield } from 'lucide-react';
 
+
+// import admin credentials dynamically from JSON
 import { useState, useEffect } from 'react';
 
 interface AdminDialogProps {
@@ -15,46 +17,59 @@ interface AdminDialogProps {
 }
 
 
-const AUTHORIZED_ADMIN = 'admin';
-const AUTHORIZED_PASSWORD = 'admin';
-
 const AdminDialog: React.FC<AdminDialogProps> = ({ open, onOpenChange, onChangeEditingAllowed }) => {
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [authorizedAdmin, setAuthorizedAdmin] = useState('admin');
+  const [authorizedPassword, setAuthorizedPassword] = useState('admin');
+
+  // Load admin credentials from JSON file
+  useEffect(() => {
+    fetch('/src/lib/admin-auth.json')
+      .then(res => res.json())
+      .then(data => {
+        setAuthorizedAdmin(data.AUTHORIZED_ADMIN);
+        setAuthorizedPassword(data.AUTHORIZED_PASSWORD);
+      })
+      .catch(() => {
+        setAuthorizedAdmin('');
+        setAuthorizedPassword('');
+      });
+  }, []);
 
   useEffect(() => {
     const savedAdminMode = localStorage.getItem('json-editor-admin-mode');
     const savedAdminUsername = localStorage.getItem('json-editor-admin-username');
     if (savedAdminUsername) setAdminUsername(savedAdminUsername);
-    if (savedAdminMode && savedAdminUsername === AUTHORIZED_ADMIN) {
+    if (savedAdminMode && savedAdminUsername === authorizedAdmin) {
       setIsAdminMode(savedAdminMode === 'true');
     }
-  }, []);
+  }, [authorizedAdmin]);
 
   useEffect(() => {
     localStorage.setItem('json-editor-admin-username', adminUsername);
   }, [adminUsername]);
 
   useEffect(() => {
-    if (adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD && !isAdminMode) {
+    if (adminUsername === authorizedAdmin && adminPassword === authorizedPassword && !isAdminMode) {
       setIsAdminMode(true);
     }
-    if (!(adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD) && isAdminMode) {
+    if (!(adminUsername === authorizedAdmin && adminPassword === authorizedPassword) && isAdminMode) {
       setIsAdminMode(false);
     }
-  }, [adminUsername, adminPassword, isAdminMode]);
+  }, [adminUsername, adminPassword, isAdminMode, authorizedAdmin, authorizedPassword]);
 
   useEffect(() => {
-    if (adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD) {
+    if (adminUsername === authorizedAdmin && adminPassword === authorizedPassword) {
       localStorage.setItem('json-editor-admin-mode', isAdminMode.toString());
     } else {
       localStorage.setItem('json-editor-admin-mode', 'false');
     }
-    onChangeEditingAllowed(isAdminMode && adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD);
-  }, [isAdminMode, adminUsername, adminPassword, onChangeEditingAllowed]);
+    onChangeEditingAllowed(isAdminMode && adminUsername === authorizedAdmin && adminPassword === authorizedPassword);
+  }, [isAdminMode, adminUsername, adminPassword, authorizedAdmin, authorizedPassword, onChangeEditingAllowed]);
 
-  const isAuthorizedAdmin = adminUsername === AUTHORIZED_ADMIN && adminPassword === AUTHORIZED_PASSWORD;
+  const isAuthorizedAdmin = adminUsername === authorizedAdmin && adminPassword === authorizedPassword;
 
   const handleAdminModeToggle = (checked: boolean) => {
     if (!isAuthorizedAdmin) return;
