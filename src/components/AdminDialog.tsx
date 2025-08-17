@@ -119,6 +119,20 @@ const AdminDialog: React.FC<AdminDialogProps> = ({ open, onOpenChange, onChangeE
           )}
         </div>
         <DialogFooter>
+          <Button
+            variant="default"
+            onClick={() => {
+              // Save admin mode state and close dialog
+              if (isAuthorizedAdmin && isAdminMode) {
+                localStorage.setItem('json-editor-admin-mode', 'true');
+                onOpenChange(false);
+              }
+            }}
+            disabled={!(isAuthorizedAdmin && isAdminMode)}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Save
+          </Button>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>Close</Button>
         </DialogFooter>
       </DialogContent>

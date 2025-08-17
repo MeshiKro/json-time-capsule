@@ -10,27 +10,18 @@ import { useToast } from "@/hooks/use-toast";
 const Index = () => {
   const [editingAllowed, setEditingAllowed] = useState(false);
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [subName, setSubName] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
-        <Header />
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAdminDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            Admin Mode
-          </Button>
-        </div>
+        <Header onAdminMode={() => setIsAdminDialogOpen(true)} subName={subName} onSubNameChange={setSubName} />
         <AdminDialog
           open={isAdminDialogOpen}
           onOpenChange={setIsAdminDialogOpen}
           onChangeEditingAllowed={setEditingAllowed}
         />
-        <JsonManager editingAllowed={editingAllowed} />
+        <JsonManager editingAllowed={editingAllowed} subName={subName} />
         <Footer />
       </div>
     </div>
