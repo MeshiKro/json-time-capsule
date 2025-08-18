@@ -3,76 +3,86 @@ import { useToast } from "@/hooks/use-toast";
 import JsonEditorCard from "@/components/JsonEditorCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
+import { getJsonData, updateJsonData, getJsonLastUpdated } from "@/lib/jsonApi";
+
 interface JsonManagerProps {
   editingAllowed: boolean;
   subName: string;
 }
 
 const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed, subName }) => {
-  // When subName changes, update it in all JSONs and persist
+  // When subName changes, update the JSON section value in state only (no API call)
   useEffect(() => {
     if (typeof subName !== 'string') return;
-    const updateJson = (json: string) => {
-      try {
-        const parsed = JSON.parse(json);
-        parsed.subName = subName;
-        if ('yourName' in parsed) delete parsed.yourName;
-        return JSON.stringify(parsed, null, 2);
-      } catch {
-        return json;
-      }
-    };
-    setJsonXData(j => {
-      const updated = updateJson(j);
-      fetch('/data/json-x.json', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: updated,
-      });
-      localStorage.setItem('json-x-data', updated);
-      return updated;
-    });
-    setJsonYData(j => {
-      const updated = updateJson(j);
-      fetch('/data/json-y.json', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: updated,
-      });
-      localStorage.setItem('json-y-data', updated);
-      return updated;
-    });
-    setJsonZData(j => {
-      const updated = updateJson(j);
-      fetch('/data/json-z.json', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: updated,
-      });
-      localStorage.setItem('json-z-data', updated);
-      return updated;
-    });
+    setJsonXData(j => updateSectionValue(j));
+    setJsonYData(j => updateSectionValue(j));
+    setJsonZData(j => updateSectionValue(j));
   }, [subName]);
   const [jsonXData, setJsonXData] = useState<string>("");
   const [jsonYData, setJsonYData] = useState<string>("");
   const [jsonZData, setJsonZData] = useState<string>("");
 
-  // Load JSON files from data directory on mount if not in localStorage
+  // Tab state
+  const [selectedTab, setSelectedTab] = useState<'x' | 'y' | 'z'>('x');
+
+  // Helper to update the Value for the matching object (works for string or object input)
+  const updateSectionValue = (input: any) => {
+    try {
+      let data = input;
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
+      }
+      if (Array.isArray(data)) {
+        for (const obj of data) {
+          if (
+            obj.Operation === 'SET' &&
+            obj.Version === '1' &&
+            obj.Section === 'sub' &&
+            obj.KeyPermission === 'test' &&
+            obj.Key === 'url'
+          ) {
+            obj.Value = subName;
+          }
+        }
+      } else if (
+        data.Operation === 'SET' &&
+        data.Version === '1' &&
+        data.Section === 'sub' &&
+        data.KeyPermission === 'test' &&
+        data.Key === 'url'
+      ) {
+        data.Value = subName;
+      }
+      return JSON.stringify(data, null, 2);
+    } catch {
+      return typeof input === 'string' ? input : JSON.stringify(input, null, 2);
+    }
+  };
+
+  // Fetch JSON data and last updated for the selected tab
   useEffect(() => {
-    const loadJson = async (file: string, storageKey: string, setter: (v: string) => void) => {
+    const fetchData = async () => {
       try {
-        // Fetch from public/data, not src/data
-        const res = await fetch(`/src/data/${file}`);
-        if (res.ok) {
-          const text = await res.text();
-          setter(text);
+        if (selectedTab === 'x') {
+          const data = await getJsonData('json-x');
+          setJsonXData(updateSectionValue(data));
+          const meta = await getJsonLastUpdated('json-x');
+          setLastUpdatedX(new Date(meta.lastUpdatedUtc));
+        } else if (selectedTab === 'y') {
+          const data = await getJsonData('json-y');
+          setJsonYData(updateSectionValue(data));
+          const meta = await getJsonLastUpdated('json-y');
+          setLastUpdatedY(new Date(meta.lastUpdatedUtc));
+        } else if (selectedTab === 'z') {
+          const data = await getJsonData('json-z');
+          setJsonZData(updateSectionValue(data));
+          const meta = await getJsonLastUpdated('json-z');
+          setLastUpdatedZ(new Date(meta.lastUpdatedUtc));
         }
       } catch {}
     };
-    loadJson('json-x.json', 'json-x-data', setJsonXData);
-    loadJson('json-y.json', 'json-y-data', setJsonYData);
-    loadJson('json-z.json', 'json-z-data', setJsonZData);
-  }, []);
+    fetchData();
+  }, [selectedTab, subName]);
   const [lastUpdatedZ, setLastUpdatedZ] = useState<Date>(new Date());
   const [lastUpdatedX, setLastUpdatedX] = useState<Date>(new Date());
   const [lastUpdatedY, setLastUpdatedY] = useState<Date>(new Date());
@@ -155,27 +165,39 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed, subName }) =>
   };
 
   // Save handlers
-  const handleSaveJsonX = () => {
-    localStorage.setItem('json-x-data', jsonXData);
-    setLastUpdatedX(new Date());
+  const handleSaveJsonX = async () => {
+    try {
+      await updateJsonData('json-x', JSON.parse(jsonXData));
+      toast({ title: 'Saved!', description: 'JSON X updated.', duration: 2000 });
+    } catch {
+      toast({ title: 'Save failed', description: 'Could not update JSON X.', variant: 'destructive', duration: 2000 });
+    }
   };
-  const handleSaveJsonY = () => {
-    localStorage.setItem('json-y-data', jsonYData);
-    setLastUpdatedY(new Date());
+  const handleSaveJsonY = async () => {
+    try {
+      await updateJsonData('json-y', JSON.parse(jsonYData));
+      toast({ title: 'Saved!', description: 'JSON Y updated.', duration: 2000 });
+    } catch {
+      toast({ title: 'Save failed', description: 'Could not update JSON Y.', variant: 'destructive', duration: 2000 });
+    }
   };
-  const handleSaveJsonZ = () => {
-    localStorage.setItem('json-z-data', jsonZData);
-    setLastUpdatedZ(new Date());
+  const handleSaveJsonZ = async () => {
+    try {
+      await updateJsonData('json-z', JSON.parse(jsonZData));
+      toast({ title: 'Saved!', description: 'JSON Z updated.', duration: 2000 });
+    } catch {
+      toast({ title: 'Save failed', description: 'Could not update JSON Z.', variant: 'destructive', duration: 2000 });
+    }
   };
 
   return (
     <>
       <div className="w-full max-w-3xl mx-auto">
-        <Tabs defaultValue="x" className="w-full">
+  <Tabs defaultValue="x" value={selectedTab} onValueChange={v => setSelectedTab(v as 'x' | 'y' | 'z')} className="w-full">
           <TabsList className="grid grid-cols-3 bg-white rounded-lg shadow mb-4">
-            <TabsTrigger value="x">JSON X</TabsTrigger>
-            <TabsTrigger value="y">JSON Y</TabsTrigger>
-            <TabsTrigger value="z">JSON Z</TabsTrigger>
+            <TabsTrigger value="x" className={selectedTab === 'x' ? 'bg-blue-600 text-white font-bold shadow' : ''}>JSON X</TabsTrigger>
+            <TabsTrigger value="y" className={selectedTab === 'y' ? 'bg-blue-600 text-white font-bold shadow' : ''}>JSON Y</TabsTrigger>
+            <TabsTrigger value="z" className={selectedTab === 'z' ? 'bg-blue-600 text-white font-bold shadow' : ''}>JSON Z</TabsTrigger>
           </TabsList>
           <TabsContent value="x">
             <JsonEditorCard
@@ -188,6 +210,7 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed, subName }) =>
               handleJsonChange={handleJsonChange}
               editingAllowed={editingAllowed}
               isValidJson={isValidJson}
+              onSave={handleSaveJsonX}
             />
           </TabsContent>
           <TabsContent value="y">
@@ -201,6 +224,7 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed, subName }) =>
               handleJsonChange={handleJsonChange}
               editingAllowed={editingAllowed}
               isValidJson={isValidJson}
+              onSave={handleSaveJsonY}
             />
           </TabsContent>
           <TabsContent value="z">
@@ -214,6 +238,7 @@ const JsonManager: React.FC<JsonManagerProps> = ({ editingAllowed, subName }) =>
               handleJsonChange={handleJsonChange}
               editingAllowed={editingAllowed}
               isValidJson={isValidJson}
+              onSave={handleSaveJsonZ}
             />
           </TabsContent>
         </Tabs>

@@ -25,6 +25,7 @@ interface JsonEditorCardProps {
   editingAllowed: boolean;
   isValidJson: (str: string) => boolean;
   extraButton?: ReactNode;
+  onSave?: () => void | Promise<void>;
 }
 
 
@@ -44,6 +45,7 @@ const JsonEditorCard: React.FC<JsonEditorCardProps> = ({
   editingAllowed,
   isValidJson,
   extraButton,
+  onSave,
 }) => {
   const [search, setSearch] = useState("");
   const [showRaw, setShowRaw] = useState(false);
@@ -179,16 +181,7 @@ const JsonEditorCard: React.FC<JsonEditorCardProps> = ({
               variant="default"
               size="sm"
               className="w-full mt-2 bg-teal-500 hover:bg-teal-600 text-white flex items-center gap-2"
-              onClick={() => {
-                // Save JSON to localStorage and update last updated timestamp
-                if (title === 'JSON X') {
-                  localStorage.setItem('json-x-data', jsonData);
-                } else if (title === 'JSON Y') {
-                  localStorage.setItem('json-y-data', jsonData);
-                } else if (title === 'JSON Z') {
-                  localStorage.setItem('json-z-data', jsonData);
-                }
-              }}
+              onClick={onSave}
               disabled={!isValidJson(jsonData)}
             >
               <Save className="h-4 w-4" />
