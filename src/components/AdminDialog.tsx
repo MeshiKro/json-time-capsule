@@ -24,18 +24,10 @@ const AdminDialog: React.FC<AdminDialogProps> = ({ open, onOpenChange, onChangeE
   const [authorizedAdmin, setAuthorizedAdmin] = useState('admin');
   const [authorizedPassword, setAuthorizedPassword] = useState('admin');
 
-  // Load admin credentials from JSON file
+  // Set admin credentials directly (no longer loaded from JSON)
   useEffect(() => {
-    fetch('/src/lib/admin-auth.json')
-      .then(res => res.json())
-      .then(data => {
-        setAuthorizedAdmin(data.AUTHORIZED_ADMIN);
-        setAuthorizedPassword(data.AUTHORIZED_PASSWORD);
-      })
-      .catch(() => {
-        setAuthorizedAdmin('');
-        setAuthorizedPassword('');
-      });
+    setAuthorizedAdmin('admin');
+    setAuthorizedPassword('admin');
   }, []);
 
   useEffect(() => {

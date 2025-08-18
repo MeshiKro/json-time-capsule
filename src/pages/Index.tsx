@@ -12,6 +12,21 @@ const Index = () => {
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   const [subName, setSubName] = useState("");
 
+  // Load subName from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('subName');
+    if (saved) setSubName(saved);
+  }, []);
+
+  // Save subName to localStorage whenever it changes
+  useEffect(() => {
+    if (subName) {
+      localStorage.setItem('subName', subName);
+    } else {
+      localStorage.removeItem('subName');
+    }
+  }, [subName]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
